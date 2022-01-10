@@ -3,8 +3,8 @@ import pandas as pd
 from utils.arguments import RunningArguments
 import pandas as pd
 from torch.utils.data import DataLoader 
-from utils.dataset import ImageLabelDataset
-from utils.augmentations import TRANSFORM_DICT
+# from utils.dataset import ImageLabelDataset
+# from utils.augmentations import TRANSFORM_DICT
 import logging
 
 
@@ -28,23 +28,23 @@ def init_running_args(args, ):
     print(running_args)
     return running_args
 
-def build_dataloader(running_args, meta=None, mode='train', include_labels=True):
-    '''
-    ImageLabelDataset only
-    '''
-    _folder = getattr(running_args, f'{mode}_folder')
-    if not isinstance(meta, pd.DataFrame):
-        _meta = getattr(running_args, f'{mode}_meta')
-        meta = load_meta(_meta, running_args)
-    _policy = getattr(running_args,f'{mode}_policy')
-    folder = os.path.join(_folder, 'images') if 'images' not in _folder else _folder
-    # meta = load_meta(os.path.join(_folder, _meta), running_args)
-    dataset = ImageLabelDataset(folder, meta, include_labels=include_labels, transform=TRANSFORM_DICT[_policy])
-    data_loader = DataLoader(
-                            dataset, batch_size=running_args.batch_size, 
-                            shuffle=True if mode=='train' else False, 
-                            )
-    return data_loader
+# def build_dataloader(running_args, meta=None, mode='train', include_labels=True):
+#     '''
+#     ImageLabelDataset only
+#     '''
+#     _folder = getattr(running_args, f'{mode}_folder')
+#     if not isinstance(meta, pd.DataFrame):
+#         _meta = getattr(running_args, f'{mode}_meta')
+#         meta = load_meta(_meta, running_args)
+#     _policy = getattr(running_args,f'{mode}_policy')
+#     folder = os.path.join(_folder, 'images') if 'images' not in _folder else _folder
+#     # meta = load_meta(os.path.join(_folder, _meta), running_args)
+#     dataset = ImageLabelDataset(folder, meta, include_labels=include_labels, transform=TRANSFORM_DICT[_policy])
+#     data_loader = DataLoader(
+#                             dataset, batch_size=running_args.batch_size, 
+#                             shuffle=True if mode=='train' else False, 
+#                             )
+#     return data_loader
 
 def load_meta(path, running_args=None):
     try:
