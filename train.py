@@ -41,7 +41,8 @@ hyp = yaml.safe_load(os.path.join(os.getcwd(), 'configs', 'hyps', 'hyp_finetune.
 
 # ===================================================================================
 if running_args.do_train:
-    train_loader = create_dataloader(running_args, )
+    train_loader = create_dataloader(data_args.train, imgsz=640, batch_size=running_args.batch_size,
+                                augment=True, hyp=hyp, image_weights=True, prefix="Train: ")
 
 
 from torchvision.utils import make_grid, save_image
@@ -52,7 +53,7 @@ model = create_model(running_args.model_type, num_classes=data_args.num_classes)
 
 
 trainer = get_trainer(running_args.model_type)(model, running_args.train_args)
-
+trainer.train()
 
 # trainer.eval(train_loader)
 
