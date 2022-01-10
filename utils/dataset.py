@@ -3,7 +3,7 @@ from torch.utils.data import Dataset
 from PIL import Image
 import torch 
 import numpy as np
-from .augmentations import DEFAULT_TEST_TRANSFORM, VAL_VAE_TRANSFORM
+from utils.augmentations import DEFAULT_TEST_TRANSFORM, VAL_VAE_TRANSFORM
 torch.manual_seed(32)
 
 class ImageLabelDataset(Dataset):

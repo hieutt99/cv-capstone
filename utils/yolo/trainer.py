@@ -1,9 +1,9 @@
-from .trainer import Trainer 
+import os, sys 
+from ..trainer import Trainer 
 import torch
 from tqdm.auto import tqdm
 from torchvision.utils import save_image
-from .yolo_computeloss import YoloComputeLoss
-import os
+from .computeloss import YoloComputeLoss
 
 
 class YoloTrainer(Trainer):

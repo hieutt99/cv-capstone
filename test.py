@@ -5,7 +5,7 @@ from utils.dataset import Dataset
 from sklearn.model_selection import train_test_split
 import numpy as np
 import argparse
-from utils.utils import *
+from utils.functions import *
 import logging
 
 # ===================================================================================

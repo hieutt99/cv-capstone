@@ -17,3 +17,6 @@ papers/
 _temp_data/
 _check/
 facemask_yolov5/
+temp/
+
+*.pth

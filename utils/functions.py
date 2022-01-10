@@ -1,11 +1,24 @@
 import os, sys 
 import pandas as pd 
-from .arguments import RunningArguments
+from utils.arguments import RunningArguments
 import pandas as pd
 from torch.utils.data import DataLoader 
-from .dataset import ImageLabelDataset
-from .augmentations import TRANSFORM_DICT
+from utils.dataset import ImageLabelDataset
+from utils.augmentations import TRANSFORM_DICT
 import logging
+
+
+from utils.faster_rcnn.trainer import FasterRCNNTrainer
+from utils.yolo.trainer import YoloTrainer
+TRAINER_DICT={
+    'fasterrcnn_resnet50_fpn': FasterRCNNTrainer,
+    'fasterrcnn_mobilenet_v3_large_fpn':FasterRCNNTrainer,
+    'yolov5s': YoloTrainer, 
+    'yolov5m': YoloTrainer,
+}
+
+def get_trainer(model_type):
+    return TRAINER_DICT[model_type]
 
 def init_running_args(args, ):
     if os.path.exists(args.config):

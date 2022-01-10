@@ -6,10 +6,10 @@ from torch.utils.tensorboard import SummaryWriter
 import torch 
 import json
 
-from utils.utils import create_logger
-from .arguments import TrainingArguments
+from utils.arguments import TrainingArguments
+import logging
 
-logger = create_logger(__name__)
+logger = logging.getLogger(__name__)
 
 GLOBAL_STATE_NAME = 'global_state.json'
 MODEL_NAME = 'model.pt'
