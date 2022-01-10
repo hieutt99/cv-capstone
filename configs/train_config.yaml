@@ -6,7 +6,7 @@ logging_file: "./test_folder/logging.txt"
 do_train: True
 do_predict: False
 
-batch_size: 10
+batch_size: 16
 
 train_args:
     # checkpoint: 100
