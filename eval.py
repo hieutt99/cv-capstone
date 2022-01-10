@@ -11,6 +11,9 @@ from utils.arguments import *
 from yolov5_utils.datasets import create_dataloader
 import ruamel.yaml as yaml
 
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning) 
+
 # ===================================================================================
 def str2bool(v):
     if v.lower() in ('yes', 'true', 't', 'y', '1'):
@@ -49,14 +52,17 @@ import torch
 from models.utils import create_model
 
 if running_args.do_eval:
-    train_loader = create_dataloader(data_args.train, imgsz=640, batch_size=running_args.batch_size,
-                                    augment=False, hyp=hyp, image_weights=True, prefix="Eval: ")
+    # val_loader = create_dataloader(data_args.val, imgsz=640, batch_size=running_args.batch_size,
+    #                                 augment=False, hyp=hyp, image_weights=True, prefix="Eval: ")
+    test_loader = create_dataloader(data_args.test, imgsz=640, batch_size=running_args.batch_size,
+                                    augment=False, hyp=hyp, image_weights=True, prefix="Test: ")
 
 
 model = create_model(running_args.model_type, num_classes=data_args.num_classes)
 
 
 trainer = get_trainer(running_args.model_type)(model, running_args.train_args)
+trainer.eval(test_loader)
 
 
 # trainer.eval(train_loader)

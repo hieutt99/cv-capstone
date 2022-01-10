@@ -13,6 +13,10 @@ import numpy as np
 import torch
 
 
+
+def cal_weighted_ap(ap50):
+    return 0.2 * ap50[1] + 0.3 * ap50[0] + 0.5 * ap50[2]
+
 def fitness(x):
     # Model fitness as a weighted combination of metrics
     w = [0.0, 0.0, 1, 0.0, 0.0]  # weights for [P, R, wAP@0.5, mAP@0.5, mAP@0.5:0.95]

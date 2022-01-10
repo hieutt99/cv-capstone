@@ -195,10 +195,10 @@ class Trainer:
         self.save_trainer_state()
     # =====================================================
                  
-    def train(self, loader):
+    def train(self, loader, val_loader=None):
         logger.info("***TRAIN***")
         if self.args.strategy == 'epoch':
-            self._train_with_epoch(loader)
+            self._train_with_epoch(loader, val_loader=val_loader)
         elif self.args.strategy == 'step':
             self._train_with_step(loader)
         else:
