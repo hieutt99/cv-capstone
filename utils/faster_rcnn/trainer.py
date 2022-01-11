@@ -182,7 +182,7 @@ class FasterRCNNTrainer(Trainer):
                 progress_bar.update(1)
                 progress_bar.set_postfix(postfix)
                 
-                for k, v in postfix:
+                for k, v in postfix.items():
                     self.writer.add_scalar(k, v, global_step=self.global_step)
                 self.writer.add_scalar("losses", losses.item(), global_step=self.global_step)
                 
