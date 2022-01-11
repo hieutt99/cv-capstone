@@ -4,6 +4,8 @@ test: ./dataset/images/public_test  # relative path to public test images
 
 # Classes
 # Please don't change
-num_classes: 3  # number of classes
+
+# bao gom background
+num_classes: 4  # number of classes
 # names: ['0', '1', '2']
 names: ['no_mask', 'mask', 'incorrect_mask']

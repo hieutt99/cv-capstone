@@ -12,7 +12,7 @@ train_args:
     # checkpoint: 1340
     load_optimizer: False
     load_lr_scheduler: False
-    lr: 3e-4
+    lr: 5e-4
     strategy: epoch # step or epoch
     # n_steps: 100
     n_epochs: 30
