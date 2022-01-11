@@ -47,17 +47,26 @@ with open(hyp_path, 'r') as fp:
 print(hyp)
 
 # ===================================================================================
-if running_args.do_train:
-    train_loader, dataset = create_dataloader(data_args.train, imgsz=640, batch_size=running_args.batch_size,
+# if running_args.do_train:
+#     train_loader, dataset = create_dataloader(data_args.train, imgsz=640, batch_size=running_args.batch_size,
+#                                 augment=True, hyp=hyp, stride=32, image_weights=True, prefix="Train: ")
+
+# val_loader, dataset = create_dataloader(data_args.val, imgsz=640, batch_size=running_args.batch_size,
+#                                 augment=False, stride=32, image_weights=True, prefix="Eval: ")
+
+# test_loader, dataset = create_dataloader(data_args.test, imgsz=640, batch_size=running_args.batch_size,
+#                                 augment=False, stride=32, image_weights=True, prefix="Eval: ")
+
+
+train_loader, dataset = create_dataloader(data_args.train, imgsz=640, batch_size=1,
                                 augment=True, hyp=hyp, stride=32, image_weights=True, prefix="Train: ")
 
-val_loader, dataset = create_dataloader(data_args.val, imgsz=640, batch_size=running_args.batch_size,
-                                augment=False, stride=32, image_weights=True, prefix="Eval: ")
+item = next(iter(train_loader))
 
-test_loader, dataset = create_dataloader(data_args.test, imgsz=640, batch_size=running_args.batch_size,
-                                augment=False, stride=32, image_weights=True, prefix="Eval: ")
+print(item)
 
 
+sys.exit()
 import torch
 from models.utils import create_model
 

@@ -47,11 +47,11 @@ class Trainer:
             self.criterion.to(self.device)
 
         # self.optimizer = AdamW(params=self.model.parameters(), lr=self.args.lr)
-        # self.optimizer = torch.optim.SGD(params=self.model.parameters(), lr=self.args.lr,
-        #                     momentum=0.9, weight_decay=0.0005)
+        self.optimizer = torch.optim.SGD(params=self.model.parameters(), lr=self.args.lr,
+                            momentum=0.9, weight_decay=0.0005)
 
         warmup_factor = 1.0 / 1000
-        warmup_iters = min(1000, len(264) - 1)
+        warmup_iters = min(1000, 264 - 1)
 
         self.lr_scheduler = torch.optim.lr_scheduler.LinearLR(
             self.optimizer, start_factor=warmup_factor, total_iters=warmup_iters
@@ -61,7 +61,7 @@ class Trainer:
         #                     total_iters=3,
         #                     )
 
-        self.lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(self.optimizer, T_0=1, T_mult=2)
+        # self.lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(self.optimizer, T_0=1, T_mult=2)
         # self.lr_scheduler = lr_scheduler.ExponentialLR(
         #     self.optimizer, 
         #     gamma=0.95,

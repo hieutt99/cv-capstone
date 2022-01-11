@@ -158,7 +158,7 @@ class FasterRCNNTrainer(Trainer):
 
         # Print results
         print_format = '%20s' + '%11i' * 3 + '%11.3g' * 5  # print format
-        temp_format = '%20s' + '%11s' * 3 + '%11.3s' * 5
+        temp_format = '%20s' + '%11s' * 3 + '%11s' * 5
         print(temp_format %("Class", "Images","Labels", "Boxes", "P", "R", "wAP@.5", "mAP@.5", "mAP@.5:.95"))
         print(print_format % ('all', self.seen, nt.sum(), sum(boxes_per_class), mp, mr, wap50, map50, map))
 
