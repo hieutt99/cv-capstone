@@ -2,7 +2,7 @@ import os, sys
 from utils.trainer import Trainer
 import torch 
 from tqdm.auto import tqdm 
-from torchvision.utils import save_image 
+from torchvision.utils import save_image, draw_bounding_boxes
 from yolov5_utils.metrics import *
 import logging
 logger = logging.getLogger(__name__)
