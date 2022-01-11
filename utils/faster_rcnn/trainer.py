@@ -163,7 +163,7 @@ class FasterRCNNTrainer(Trainer):
         print(print_format % ('all', self.seen, nt.sum(), sum(boxes_per_class), mp, mr, wap50, map50, map))
 
         # Print results per class
-        if (verbose or (self.data_args.num_classes < 50)) and self.data_args.num_classes > 1 and len(self.stats):
+        if verbose and (self.data_args.num_classes < 50) and self.data_args.num_classes > 1 and len(self.stats):
             for i, c in enumerate(ap_class):
                 print(print_format % (c, self.num_per_class[i], nt[c],
                                     boxes_per_class[i], p[i], r[i], ap50[i], ap50[i], ap[i]))
