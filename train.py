@@ -1,5 +1,6 @@
 import os, sys
 from re import L
+from torch.optim import lr_scheduler
 
 from torch.utils import data
 from sklearn.model_selection import train_test_split
@@ -63,8 +64,8 @@ model = create_model(running_args.model_type, num_classes=data_args.num_classes)
 trainer = get_trainer(running_args.model_type)(model, running_args.train_args, data_args=data_args)
 # trainer.train(train_loader)
 
-# trainer.train(train_loader, val_loader=val_loader)
-trainer.train(train_loader)
+trainer.train(train_loader, val_loader=val_loader)
+# trainer.train(train_loader)
 trainer.eval(val_loader)
 
 # ===================================================================================

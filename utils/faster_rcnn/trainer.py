@@ -7,6 +7,12 @@ from yolov5_utils.metrics import *
 import logging
 logger = logging.getLogger(__name__)
 
+logFormatter = logging.Formatter('[%(asctime)s]:[%(levelname)s]:[%(name)s]: %(message)s')
+consoleHandler = logging.StreamHandler()
+consoleHandler.setFormatter(logFormatter)
+logger.addHandler(consoleHandler)
+logger.setLevel(logging.DEBUG)
+
 
 import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning) 
@@ -157,7 +163,7 @@ class FasterRCNNTrainer(Trainer):
         return 
 
     def _train_with_epoch(self, loader, val_loader):
-        for epoch in range(self.args.n_epochs):
+        for epoch in range(self.global_epoch, self.args.n_epochs):
             iter_num = len(loader)
             progress_bar = tqdm(range(iter_num))
             progress_bar.set_description(f"Training epoch {epoch}: ")

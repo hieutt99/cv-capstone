@@ -11,6 +11,13 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+logFormatter = logging.Formatter('[%(asctime)s]:[%(levelname)s]:[%(name)s]: %(message)s')
+consoleHandler = logging.StreamHandler()
+consoleHandler.setFormatter(logFormatter)
+logger.addHandler(consoleHandler)
+logger.setLevel(logging.DEBUG)
+
+
 GLOBAL_STATE_NAME = 'global_state.json'
 MODEL_NAME = 'model.pt'
 SCHEDULER_NAME = 'scheduler.pt'
@@ -39,15 +46,19 @@ class Trainer:
         if self.criterion != None:
             self.criterion.to(self.device)
 
-        self.optimizer = AdamW(params=self.model.parameters(), lr=self.args.lr)
+        # self.optimizer = AdamW(params=self.model.parameters(), lr=self.args.lr)
+        self.optimizer = torch.optim.SGD(params=self.model.parameters(), lr=self.args.lr,
+                            momentum=0.9, weight_decay=0.0005)
         # self.lr_scheduler = lr_scheduler.LinearLR(
         #                     self.optimizer, 
         #                     total_iters=3,
         #                     )
-        self.lr_scheduler = lr_scheduler.ExponentialLR(
-            self.optimizer, 
-            gamma=0.95,
-        )
+
+        self.lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(self.optimizer, T_0=1, T_mult=2)
+        # self.lr_scheduler = lr_scheduler.ExponentialLR(
+        #     self.optimizer, 
+        #     gamma=0.95,
+        # )
         self.writer = SummaryWriter(self.args.logging_dir)
 
         self.global_step = 0
@@ -55,17 +66,18 @@ class Trainer:
 
         if self.args.checkpoint:
             self.load_trainer_state()
-            self.load_checkpoint()
+            self.load_checkpoint(optimizer=self.args.load_optimizer, lr_scheduler=self.args.load_lr_scheduler)
 
-    def load_checkpoint(self, path=None):
+    def load_checkpoint(self, path=None, optimizer=True, lr_scheduler=True):
         if path == None:
             if self.args.checkpoint != None:
                 path = os.path.join(self.args.save_folder, f'model_step_{self.args.checkpoint}')
             else:
                 logger.error(f"No checkpoint {self.args.checkpoint} in {self.args.save_folder}.")
-
-        self.optimizer.load_state_dict(torch.load(os.path.join(path, OPTIMIZER_NAME), map_location=self.device))
-        self.lr_scheduler.load_state_dict(torch.load(os.path.join(path, SCHEDULER_NAME)))
+        if optimizer:
+            self.optimizer.load_state_dict(torch.load(os.path.join(path, OPTIMIZER_NAME), map_location=self.device))
+        if lr_scheduler:
+            self.lr_scheduler.load_state_dict(torch.load(os.path.join(path, SCHEDULER_NAME)))
         self.model.load_state_dict(torch.load(os.path.join(path, MODEL_NAME), map_location=self.device))
         logger.info(f'Loaded checkpoint {self.global_step} from {path}')
         
