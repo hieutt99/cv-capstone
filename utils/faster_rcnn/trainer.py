@@ -218,7 +218,7 @@ class FasterRCNNTrainer(Trainer):
                 self._save_checkpoint()
                 self.save_trainer_state()
             if val_loader:
-                self.eval(val_loader, verbose=False)
+                self.eval(val_loader, verbose=True)
 
         self._save_checkpoint()
         self.save_trainer_state()
