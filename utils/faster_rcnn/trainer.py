@@ -7,6 +7,10 @@ from yolov5_utils.metrics import *
 import logging
 logger = logging.getLogger(__name__)
 
+
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning) 
+
 def process_batch(detections, labels, iou_thresholds):
     """
     Return correct predictions matrix. Both sets of boxes are in (x1, y1, x2, y2) format.
