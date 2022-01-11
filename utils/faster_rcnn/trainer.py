@@ -103,7 +103,7 @@ class FasterRCNNTrainer(Trainer):
             _boxes = query[:,-4:]
             targets.append({
                 'boxes': self._convert_boxes(_boxes, w, h).to(device) if _boxes.size(0)>0 else _boxes.to(device),
-                'labels': _labels.to(device),
+                'labels': _labels.to(device)+1,
             })
         return imgs, targets    
 
