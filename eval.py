@@ -1,5 +1,6 @@
 import os, sys
 from re import L
+from torch.optim import lr_scheduler
 
 from torch.utils import data
 from sklearn.model_selection import train_test_split
@@ -23,7 +24,7 @@ def str2bool(v):
         raise argparse.ArgumentTypeError('Boolean value expected.')
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--config', default=os.path.join(os.getcwd(), 'configs', 'config.yaml'), type=str)
+parser.add_argument('--config', default=os.path.join(os.getcwd(), 'configs', 'train_config.yaml'), type=str)
 parser.add_argument('--do_train', nargs='?', type=str2bool, const=True, default=False)
 parser.add_argument('--do_predict', nargs='?', type=str2bool, const=True, default=False)
 parser.add_argument('--batch_size', default=16, type=int)
@@ -39,33 +40,35 @@ running_args = init_running_args(args)
 
 data_args = DataArguments.load_from_file(running_args.data_config)
 
-hyp = yaml.safe_load(os.path.join(os.getcwd(), 'configs', 'hyps', 'hyp_finetune.yaml'))
+
+hyp_path = os.path.join(os.getcwd(), 'configs', 'hyps', 'hyp_finetune.yaml')
+with open(hyp_path, 'r') as fp:
+    hyp = yaml.safe_load(fp)
+print(hyp)
 
 # ===================================================================================
-# if running_args.do_train:
-#     train_loader = create_dataloader(data_args.train, imgsz=640, batch_size=running_args.batch_size,
-#                                 augment=True, hyp=hyp, image_weights=True, prefix="Train: ")
+if running_args.do_train:
+    train_loader, dataset = create_dataloader(data_args.train, imgsz=640, batch_size=running_args.batch_size,
+                                augment=True, hyp=hyp, stride=32, image_weights=True, prefix="Train: ")
 
-from torchvision.utils import make_grid, save_image
+val_loader, dataset = create_dataloader(data_args.val, imgsz=640, batch_size=running_args.batch_size,
+                                augment=False, stride=32, image_weights=True, prefix="Eval: ")
+
+test_loader, dataset = create_dataloader(data_args.test, imgsz=640, batch_size=running_args.batch_size,
+                                augment=False, stride=32, image_weights=True, prefix="Eval: ")
+
+
 import torch
 from models.utils import create_model
-
-if running_args.do_eval:
-    # val_loader = create_dataloader(data_args.val, imgsz=640, batch_size=running_args.batch_size,
-    #                                 augment=False, hyp=hyp, image_weights=True, prefix="Eval: ")
-    test_loader = create_dataloader(data_args.test, imgsz=640, batch_size=running_args.batch_size,
-                                    augment=False, hyp=hyp, image_weights=True, prefix="Test: ")
-
 
 model = create_model(running_args.model_type, num_classes=data_args.num_classes)
 
 
-trainer = get_trainer(running_args.model_type)(model, running_args.train_args)
-trainer.load_checkpoint()
+trainer = get_trainer(running_args.model_type)(model, running_args.train_args, data_args=data_args)
+# trainer.train(train_loader)
+
+# trainer.train(train_loader)
 trainer.eval(test_loader)
-
-
-# trainer.eval(train_loader)
 
 # ===================================================================================
 

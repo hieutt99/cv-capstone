@@ -1,5 +1,6 @@
 import torch.nn.functional as F
 from torchvision.models.detection import *
+from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 
 def interpolate(image, size=224):
     return F.interpolate(
@@ -19,5 +20,8 @@ MODEL_DICT = {
 
 def create_model(model_name, num_classes=3):
     if model_name in MODEL_DICT.keys():
-        return MODEL_DICT[model_name](pretrained_backbone=True, num_classes=num_classes)
+        model =  MODEL_DICT[model_name](pretrained = True)
+        in_features = model.roi_heads.box_predictor.cls_score.in_features
+        model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes)
+        return model
     return None

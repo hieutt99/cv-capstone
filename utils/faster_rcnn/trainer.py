@@ -45,7 +45,7 @@ def process_batch(detections, labels, iou_thresholds):
 class FasterRCNNTrainer(Trainer):
     def __init__(self, model , train_args, data_args, **kwargs):
         super(FasterRCNNTrainer, self).__init__(model=model, criterion=None, train_args=train_args)
-        self.iou_thresholds = torch.linspace(0.5, 0.95, 10).to(self.device)  # iou vector for mAP@0.5:0.95
+        self.iou_thresholds = torch.linspace(0.5, 0.95, 10)  # iou vector for mAP@0.5:0.95
         self.num_thresholds = self.iou_thresholds.numel()
         self.data_args = data_args
 
@@ -53,15 +53,15 @@ class FasterRCNNTrainer(Trainer):
         
         for index, img in enumerate(preds):
             lb = targets[index]
-            boxes = img['boxes']
-            l = img['labels'].unsqueeze(1)
-            conf = img['scores'].unsqueeze(1)
+            boxes = img['boxes'].cpu()
+            l = img['labels'].unsqueeze(1).cpu()
+            conf = img['scores'].unsqueeze(1).cpu()
 
             p = torch.cat((boxes, conf, l), dim=1)
 
-            x = lb['boxes']
-            y = lb['labels'].unsqueeze(1)
-            z = torch.cat((x, y), dim=1)
+            x = lb['boxes'].cpu()
+            y = lb['labels'].unsqueeze(1).cpu()
+            z = torch.cat((y, x), dim=1)
 
             for i in range(self.data_args.num_classes):
                 self.num_per_class[i]+=len(torch.where(y[:,0] == i))
@@ -73,7 +73,7 @@ class FasterRCNNTrainer(Trainer):
                                     torch.Tensor(), torch.Tensor(), target_class))
 
             correct = process_batch(p, z, self.iou_thresholds)
-            self.stats.append((correct.cpu(), conf.cpu(), l.cpu(), target_class))
+            self.stats.append((correct.cpu().squeeze(1), conf.cpu().squeeze(1), l.cpu().squeeze(1), target_class))
             self.seen+=1
 
     def _convert_boxes(self, boxes, w, h):
@@ -91,18 +91,19 @@ class FasterRCNNTrainer(Trainer):
         boxes[:,3] = h_components[:, 0] + h_components[:,1]
         return boxes
 
-    def _handle_batch(self, batch):
+    def _handle_batch(self, batch, eval=False):
+        device = self.device if not eval else torch.device('cpu')
         imgs, labels, paths, _ = batch 
         b, c, w, h = imgs.size()
-        imgs = [img.to(self.device)/255 for img in imgs]
+        imgs = [img.to(device)/255 for img in imgs]
         targets = []
         for i in range(len(imgs)):
             query = labels[(labels[:,0]==i).nonzero().squeeze(1)]
             _labels = query[:,1].long()
             _boxes = query[:,-4:]
             targets.append({
-                'boxes': self._convert_boxes(_boxes, w, h).to(self.device) if _boxes.size(0)>0 else _boxes.to(self.device),
-                'labels': _labels.to(self.device),
+                'boxes': self._convert_boxes(_boxes, w, h).to(device) if _boxes.size(0)>0 else _boxes.to(device),
+                'labels': _labels.to(device),
             })
         return imgs, targets    
 
@@ -115,15 +116,19 @@ class FasterRCNNTrainer(Trainer):
         return outputs 
 
     def _eval_one_batch(self, batch):
+        cpu_device = torch.device('cpu')
         self.model.eval()
-        imgs, targets = self._handle_batch(batch)
+        imgs, targets = self._handle_batch(batch, eval=True)
 
-        predictions = self.model(imgs)
-
+        imgs = [img.to(self.device) for img in imgs]
+        with torch.no_grad():
+            predictions = self.model(imgs)
+        predictions = [{k: v.to(cpu_device) for k, v in t.items()} for t in predictions]
+        
         self.handle_preds(predictions, targets)
         # return predictions, metrics 
 
-    def eval(self, loader, plots=False):
+    def eval(self, loader, plots=False, verbose=True):
         num_iter = len(loader)
         progress_bar = tqdm(range(num_iter))
         progress_bar.set_description("Eval: ")
@@ -135,13 +140,14 @@ class FasterRCNNTrainer(Trainer):
             self._eval_one_batch(batch)
 
             progress_bar.update(1)
-
+        
+        progress_bar.close()
         self.stats = [np.concatenate(x, 0) for x in zip(*self.stats)]
         boxes_per_class = np.bincount(self.stats[2].astype(np.int64), minlength=self.data_args.num_classes)
         ap50 = None
 
         if len(self.stats) and self.stats[0].any():
-            p, r, ap, f1, ap_class = ap_per_class(*self.stats, plot=plots, save_dir=self.train_args.save_folder,
+            p, r, ap, f1, ap_class = ap_per_class(*self.stats, plot=plots, save_dir=self.args.save_folder,
                 # names=names,
                 )
             ap50, ap = ap[:, 0], ap.mean(1)  # AP@0.5, AP@0.5:0.95
@@ -152,10 +158,12 @@ class FasterRCNNTrainer(Trainer):
 
         # Print results
         print_format = '%20s' + '%11i' * 3 + '%11.3g' * 5  # print format
+        temp_format = '%20s' + '%11s' * 3 + '%11.3s' * 5
+        print(temp_format %("Class", "Images","Labels", "Boxes", "P", "R", "wAP@.5", "mAP@.5", "mAP@.5:.95"))
         print(print_format % ('all', self.seen, nt.sum(), sum(boxes_per_class), mp, mr, wap50, map50, map))
 
         # Print results per class
-        if (True or (self.data_args.num_classes < 50)) and self.data_args.num_classes > 1 and len(self.stats):
+        if (verbose or (self.data_args.num_classes < 50)) and self.data_args.num_classes > 1 and len(self.stats):
             for i, c in enumerate(ap_class):
                 print(print_format % (c, self.num_per_class[i], nt[c],
                                     boxes_per_class[i], p[i], r[i], ap50[i], ap50[i], ap[i]))
@@ -210,7 +218,7 @@ class FasterRCNNTrainer(Trainer):
                 self._save_checkpoint()
                 self.save_trainer_state()
             if val_loader:
-                self.eval(val_loader)
+                self.eval(val_loader, verbose=False)
 
         self._save_checkpoint()
         self.save_trainer_state()
