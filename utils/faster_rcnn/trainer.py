@@ -170,7 +170,7 @@ class FasterRCNNTrainer(Trainer):
 
                 loss_dict = self._train_one_batch(batch)
                 losses = sum(loss for loss in loss_dict.values())
-                postfix = {k:v.items() for k,v in loss_dict.items()}
+                postfix = {k:v.item() for k,v in loss_dict.items()}
                 
                 self.optimizer.zero_grad()
                 losses.backward()
