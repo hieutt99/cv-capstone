@@ -54,7 +54,6 @@ if running_args.do_train:
                                 augment=False, stride=32, image_weights=True, prefix="Eval: ")
 
 
-from torchvision.utils import make_grid, save_image
 import torch
 from models.utils import create_model
 
@@ -64,7 +63,9 @@ model = create_model(running_args.model_type, num_classes=data_args.num_classes)
 trainer = get_trainer(running_args.model_type)(model, running_args.train_args, data_args=data_args)
 # trainer.train(train_loader)
 
-trainer.train(train_loader, val_loader=val_loader)
+# trainer.train(train_loader, val_loader=val_loader)
+trainer.train(train_loader)
+trainer.eval(val_loader)
 
 # ===================================================================================
 

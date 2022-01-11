@@ -168,13 +168,24 @@ class FasterRCNNTrainer(Trainer):
                     iterator = iter(loader)
                     batch = next(iterator)
 
-                outputs = self._train_one_batch(batch)
+                loss_dict = self._train_one_batch(batch)
+                losses = sum(loss for loss in loss_dict.values())
+                postfix = {k:v.items() for k,v in loss_dict.items()}
                 
+                self.optimizer.zero_grad()
+                losses.backward()
+                self.optimizer.step()
+
+                if self.lr_scheduler is not None:
+                    self.lr_scheduler.step()
+
                 progress_bar.update(1)
-                progress_bar.set_postfix(outputs)
+                progress_bar.set_postfix(postfix)
                 
-                for k, v in outputs.items():
-                    self.writer.add_scalar(k, v.item(), global_step=self.global_step)
+                for k, v in postfix:
+                    self.writer.add_scalar(k, v, global_step=self.global_step)
+                self.writer.add_scalar("losses", losses.item(), global_step=self.global_step)
+                
                 self.global_step+=1
                 
                 if self.global_step%self.args.lr_steps == 0:

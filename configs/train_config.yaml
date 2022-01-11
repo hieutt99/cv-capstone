@@ -6,21 +6,20 @@ logging_file: "./test_folder/logging.txt"
 do_train: True
 do_predict: False
 
-batch_size: 16
+batch_size: 6
 
 train_args:
     # checkpoint: 100
     lr: 1e-4
     strategy: epoch # step or epoch
     # n_steps: 100
-    n_epochs: 10
+    n_epochs: 5
     lr_steps: 500
     steps_per_epoch: null # for augmentation in strategy epoch
-    logging_dir: logging 
-    # logging_dir: /content/gdrive/MyDrive/zalo-ai/logging/efnet/
+    logging_dir: "/content/gdrive/MyDrive/cv/fasterrcnn"
     device: cpu
     eval_interval: null
-    save_folder: /content/gdrive/MyDrive/cv/fasterrcnn
+    save_folder: "/content/gdrive/MyDrive/cv/fasterrcnn"
     # save_folder: test_folder
     save_strategy: epoch # step or epoch 
     save_interval: 1

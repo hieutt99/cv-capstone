@@ -2,7 +2,6 @@ import os, sys
 from re import L
 
 from torch.utils import data
-from utils.dataset import Dataset
 from sklearn.model_selection import train_test_split
 import numpy as np
 import argparse
@@ -62,6 +61,7 @@ model = create_model(running_args.model_type, num_classes=data_args.num_classes)
 
 
 trainer = get_trainer(running_args.model_type)(model, running_args.train_args)
+trainer.load_checkpoint()
 trainer.eval(test_loader)
 
 
