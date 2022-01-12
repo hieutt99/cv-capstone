@@ -123,6 +123,7 @@ class FasterRCNNTrainer(Trainer):
         imgs = [img.to(self.device) for img in imgs]
         with torch.no_grad():
             predictions = self.model(imgs)
+        # boxes, labels, scores
         predictions = [{k: v.to(cpu_device) for k, v in t.items()} for t in predictions]
         
         self.handle_preds(predictions, targets)
