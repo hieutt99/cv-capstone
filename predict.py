@@ -27,4 +27,6 @@ images = [image.to(device)]
 with torch.no_grad():
     predictions = model(images)
 
+# predictions có dạng [{'boxes': torch.Tensor(), 'labels': torch.Tensor(), 'scores': torch.Tensor()}]
+
 print(predictions)
