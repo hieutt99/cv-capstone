@@ -9,7 +9,7 @@ do_predict: False
 batch_size: 10
 
 train_args:
-    # checkpoint: 1340
+    checkpoint: 2144
     load_optimizer: False
     load_lr_scheduler: False
     lr: 5e-4
