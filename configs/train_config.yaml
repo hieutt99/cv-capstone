@@ -10,8 +10,8 @@ batch_size: 10
 
 train_args:
     checkpoint: 2144
-    load_optimizer: False
-    load_lr_scheduler: False
+    load_optimizer: True
+    load_lr_scheduler: True
     lr: 5e-4
     strategy: epoch # step or epoch
     # n_steps: 100
